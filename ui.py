@@ -28,7 +28,7 @@ class App:
 
     def build_login(self):
         self.clear_root()
-        self.root.geometry("400x250")
+        self.root.geometry("400x500")
         self.root.configure(bg=UITheme.BG_COLOR)
 
         frame = tk.Frame(self.root, bg=UITheme.BG_COLOR)
