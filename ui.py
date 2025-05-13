@@ -28,7 +28,7 @@ class App:
 
     def build_login(self):
         self.clear_root()
-        self.root.geometry("400x500")
+        self.root.geometry("400x250")
         self.root.configure(bg=UITheme.BG_COLOR)
 
         frame = tk.Frame(self.root, bg=UITheme.BG_COLOR)
@@ -91,7 +91,7 @@ class App:
 
     def show_menu(self):
         self.clear_root()
-        self.root.geometry("400x400")
+        self.root.geometry("400x500")
         self.root.configure(bg=UITheme.BG_COLOR)
         tk.Label(self.root, text="Hospital Clinical Dashboard", font=UITheme.TITLE_FONT, bg=UITheme.BG_COLOR).pack(pady=10)
 
@@ -284,22 +284,12 @@ class App:
         self.clear_root()
         self.root.configure(bg=UITheme.BG_COLOR)
 
-        tk.Label(self.root, text="Enter Patient ID:", font=UITheme.FONT, bg=UITheme.BG_COLOR).pack(pady=5)
+        tk.Label(self.root, text="Enter Patient ID:", font=UITheme.FONT, bg=UITheme.BG_COLOR).pack(pady=10)
         pid_entry = tk.Entry(self.root, font=UITheme.FONT)
         pid_entry.pack(pady=5)
 
-        tk.Label(self.root, text="Enter Visit Date (YYYY-MM-DD):", font=UITheme.FONT, bg=UITheme.BG_COLOR).pack(pady=5)
-        date_entry = tk.Entry(self.root, font=UITheme.FONT)
-        date_entry.pack(pady=5)
-
         def submit():
             pid = pid_entry.get().strip()
-            date_input = date_entry.get().strip()
-            try:
-                target_date = datetime.strptime(date_input, "%Y-%m-%d").strftime("%m/%d/%Y")
-            except ValueError:
-                messagebox.showerror("Error", "Invalid date format. Use YYYY-MM-DD.")
-                return
 
             if pid not in self.patients:
                 messagebox.showerror("Not Found", f"Patient {pid} not found.")
@@ -308,20 +298,19 @@ class App:
                 return
 
             patient = self.patients[pid]
-            notes_found = False
-            info = f"Notes for {pid} on {target_date}:\n\n"
+            notes = []
 
             for visit in patient.visits:
-                if visit.visit_time.strip() == target_date:
-                    for note in visit.notes:
-                        info += f"- [{note.note_type}] {note.note_text}\n"
-                        notes_found = True
+                for note in visit.notes:
+                    notes.append(f"[{note.note_type}] {note.note_text} (Date: {visit.visit_time})")
 
-            if not notes_found:
-                info += "No notes found for this date."
+            if not notes:
+                messagebox.showinfo("Notes", f"No notes available for Patient {pid}.")
+            else:
+                note_text = f"All Notes for {pid}:\n\n" + "\n".join(notes)
+                messagebox.showinfo("Notes", note_text)
 
-            messagebox.showinfo("Notes", info)
-            self.log_usage(self.user.username, self.user.role, f"view_note: {pid} on {target_date}")
+            self.log_usage(self.user.username, self.user.role, f"view_note: {pid}")
             self.show_menu()
 
         ttk.Button(self.root, text="Submit", command=submit, style=UITheme.BUTTON_STYLE).pack(pady=10)
